@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Github, Linkedin } from "lucide-react";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
 import { site } from "@/lib/site";
@@ -14,6 +15,7 @@ const nav = [
 
 export function Header() {
   const [scrolled, setScrolled] = React.useState(false);
+  const pathname = usePathname();
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -58,35 +60,74 @@ export function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-full px-3 py-2 text-sm font-medium text-[color:var(--muted)] transition hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {nav.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`rounded-full px-3 py-2 text-sm font-medium transition relative group ${
+                  isActive
+                    ? "text-[color:var(--foreground)]"
+                    : "text-[color:var(--muted)] hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
+                }`}
+              >
+                <span className="relative inline-block">
+                  {item.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--accent-2)] rounded-full group-hover:scale-x-0 transition-transform duration-200" />
+                  )}
+                </span>
+              </Link>
+            );
+          })}
         </nav>
 
         <nav className="flex items-center gap-1 sm:hidden">
           <Link
             href="/"
-            className="rounded-full px-3 py-2 text-sm font-medium text-[color:var(--muted)] transition hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
+            className={`rounded-full px-3 py-2 text-sm font-medium transition relative group ${
+              pathname === "/"
+                ? "text-[color:var(--foreground)]"
+                : "text-[color:var(--muted)] hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
+            }`}
           >
-            Work
+            <span className="relative inline-block mb-1">
+              Work
+              {pathname === "/" && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--accent-2)] rounded-full group-hover:scale-x-0 transition-transform duration-200" />
+              )}
+            </span>
           </Link>
           <Link
             href="/profile"
-            className="rounded-full px-3 py-2 text-sm font-medium text-[color:var(--muted)] transition hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
+            className={`rounded-full px-3 py-2 text-sm font-medium transition relative group ${
+              pathname === "/profile"
+                ? "text-[color:var(--foreground)]"
+                : "text-[color:var(--muted)] hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
+            }`}
           >
-            Profile
+            <span className="relative inline-block mb-1">
+              Profile
+              {pathname === "/profile" && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--accent-2)] rounded-full group-hover:scale-x-0 transition-transform duration-200" />
+              )}
+            </span>
           </Link>
           <Link
             href="/contact"
-            className="rounded-full px-3 py-2 text-sm font-medium text-[color:var(--muted)] transition hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
+            className={`rounded-full px-3 py-2 text-sm font-medium transition relative group ${
+              pathname === "/contact"
+                ? "text-[color:var(--foreground)]"
+                : "text-[color:var(--muted)] hover:bg-black/4 hover:text-[color:var(--foreground)] dark:hover:bg-white/6"
+            }`}
           >
-            Contact
+            <span className="relative inline-block mb-1">
+              Contact
+              {pathname === "/contact" && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[color:var(--accent-2)] rounded-full group-hover:scale-x-0 transition-transform duration-200" />
+              )}
+            </span>
           </Link>
         </nav>
       </div>

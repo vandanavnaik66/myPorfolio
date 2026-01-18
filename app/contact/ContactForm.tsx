@@ -8,7 +8,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 const Schema = z.object({
   name: z.string().min(2, "Please enter your name").max(80),
   email: z.string().email("Please enter a valid email").max(200),
-  message: z.string().min(10, "Please add a message").max(4000),
+  message: z.string()
+    .superRefine((val, ctx) => {
+      if (val.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please add a message",
+        });
+      } else if (val.length > 0 && val.length < 10) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Please enter a valid message of at least 10 characters (${val.length}/10)`,
+        });
+      } else if (val.length > 4000) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Message must be less than 4000 characters",
+        });
+      }
+    }),
 });
 
 type FormValues = z.infer<typeof Schema>;
@@ -24,6 +42,7 @@ export function ContactForm() {
     | { state: "sent"; mode: string }
     | { state: "error"; message: string }
   >({ state: "idle" });
+  const [showSuccessDialog, setShowSuccessDialog] = React.useState(false);
 
   const {
     register,
@@ -54,6 +73,7 @@ export function ContactForm() {
     }
 
     reset();
+    setShowSuccessDialog(true);
     setStatus({ state: "sent", mode: data && "mode" in data ? data.mode ?? "unknown" : "unknown" });
   });
 
@@ -107,11 +127,6 @@ export function ContactForm() {
           {status.state === "sending" ? "Sending…" : "Send Message"}
         </button>
 
-        {status.state === "sent" ? (
-          <p className="text-sm text-emerald-700 dark:text-emerald-300">
-            Message sent. Thanks for reaching out.
-          </p>
-        ) : null}
         {status.state === "error" ? (
           <p className="text-sm text-rose-700 dark:text-rose-300">{status.message}</p>
         ) : null}
@@ -122,6 +137,37 @@ export function ContactForm() {
           Note: email is currently in console mode. Configure SMTP env vars to actually send mail.
         </p>
       ) : null}
+
+      {showSuccessDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="glass relative w-full max-w-sm rounded-2xl p-6 shadow-lg">
+            <button
+              onClick={() => setShowSuccessDialog(false)}
+              className="absolute right-4 top-4 text-[color:var(--muted)] transition hover:text-[color:var(--foreground)]"
+              aria-label="Close"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="text-center">
+              <div className="mb-4 flex justify-center">
+                <svg className="h-12 w-12 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-[color:var(--foreground)]">Message Sent!</h3>
+              <p className="mb-6 text-sm text-[color:var(--muted)]">Thanks for reaching out. I'll get back to you soon.</p>
+              <button
+                onClick={() => setShowSuccessDialog(false)}
+                className="inline-flex h-10 items-center justify-center rounded-full px-6 text-sm font-semibold shadow-sm transition hover:opacity-95 bg-[color:var(--accent)] text-[#0F1219]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }
