@@ -1,8 +1,38 @@
 @import "tailwindcss";
 
+/* Tailwind v4: enable `dark:` via `.dark` class (next-themes) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Ethereal Mist — Light */
+  --background: #f8f9ff; /* Soft Alabaster */
+  --foreground: #2d3748; /* Slate Gray */
+  --muted: rgba(45, 55, 72, 0.72);
+
+  --glass-fill: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.5);
+
+  --accent: #a3b1ff; /* Soft Periwinkle Pastel */
+  --accent-2: #fbcfe8; /* Cotton Candy Pastel */
+
+  --blur: 12px;
+  --sat: 180%;
+}
+
+/* Ethereal Mist — Dark (next-themes adds `.dark` on <html>) */
+.dark {
+  --background: #0f1219; /* Deep Obsidian */
+  --foreground: #e2e8f0; /* Cloud White */
+  --muted: rgba(226, 232, 240, 0.78);
+
+  --glass-fill: rgba(30, 41, 59, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  --accent: #c7d2fe; /* Light Indigo Pastel */
+  --accent-2: #fda4af; /* Muted Rose Pastel */
+
+  --blur: 16px;
+  --sat: 150%;
 }
 
 @theme inline {
@@ -12,15 +42,36 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent-2) 75%, white);
+  color: #0f1219;
+}
+
+/* Reusable glass surfaces */
+.glass {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--blur)) saturate(var(--sat));
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--sat));
+}
+
+.glass-bar {
+  background: var(--glass-fill);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--blur)) saturate(var(--sat));
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(var(--sat));
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.glass-bar[data-scrolled="true"] {
+  /* Reduce background opacity while keeping text/icons crisp */
+  background: color-mix(in srgb, var(--glass-fill) 65%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--glass-border) 70%, transparent);
 }
